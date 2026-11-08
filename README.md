@@ -102,6 +102,29 @@ DSHA 在安卓 proot/SELinux 环境里不能依赖 Node 原生的 `link(2)` 发�
 - DSHA 后续「更新受管运行时」或 DSH 再次升级都会覆盖本修复；届时需要重新执行或等待官方支持。
 - 本补丁只恢复会话链路，不包含 DSHA 针对 0.2.1 的其它 UI/行为补丁，行为不会与官方 0.2.1 组合 100% 一致。
 
+## 踩坑：插件兼容性自检与 prerelease
+
+升级 DSH 后建议先跑一遍插件兼容性自检，避免“插件因版本不匹配被自动跳过，但看起来像功能丢失”：
+
+```bash
+node scripts/check-plugin-compat.mjs --version 0.2.2-rc.1 --profile ~/.dsh/profiles/web
+# 也可以：node scripts/check-plugin-compat.mjs 0.2.2-rc.1 ~/.dsh/profiles/web
+```
+
+脚本只读，不会修改 profile，也不会联网。判定规则与 DSH（`@deepseek-ai/dsh-app-boot`）一致：
+
+1. 插件 `package.json` 有 `engines.dsh` 时，只用它判断；
+2. 没有 `engines.dsh` 时，检查 `peerDependencies` 中所有 `@deepseek-ai/dsh` / `@deepseek-ai/dsh-*` 的版本要求；
+3. `workspace:^` / `workspace:~` / `workspace:*` 视为当前运行时版本。
+
+**prerelease 坑**：`semver.satisfies(current, range)` 默认不会把 prerelease 版本算进普通范围，
+所以 `0.2.2-rc.1` 这种 rc 版本，连 `>=0.2.0-rc.1` 这种看起来满足的范围也会被误判成不兼容。
+正确写法必须传 `{ includePrerelease: true }`（DSH 自己就是这么判断的），本脚本已带上该参数。
+
+以本文这套 DSHA + `0.2.2-rc.1` 环境为例，自检会看到 `dsh-device-shell-guide`、
+`dsh-computer-use-android`、`dsh-auto-review`、`dsh-tool-vscreen` 的 0.2.1-rc.2 要求不满足，
+这正对应上文的“4 个内置插件被跳过”，不是脚本误报。
+
 ## 安全 / 法务说明
 
 - 脚本只修改**你自己的**手机、你自己的容器里的本地文件，修改前自动备份；不联网、不读取聊天记录/凭据、
@@ -141,9 +164,16 @@ python3 /sdcard/Download/fix_dsh_022_session.py
 
 Then restart DSH Web from the DSHA launch page.
 
+## 致谢
+
+- 手机端 DSH 助手指出 `semver.satisfies` 的 prerelease 判定问题并给出初稿；
+  本仓库版本在其基础上补齐了 DSH 的完整判定规则（`engines.dsh` 优先、`peerDependencies` 回退）。
+- 感谢 DSH-APP/DSHA 与 DeepSeek Harness 的 MIT 开源，具体许可见 [NOTICE.md](NOTICE.md)。
+
 ## Files
 
 - `fix_dsh_022_session.py` — apply the workaround (with dry-run and automatic backup)
 - `revert_dsh_022_session.py` — restore profile / session module from the latest backup
+- `scripts/check-plugin-compat.mjs` — 只读插件兼容性检查（`engines.dsh` / `peerDependencies`，正确使用 prerelease 判定）
 - `LICENSE` — MIT license for this repository
 - `NOTICE.md` — upstream MIT notices and what was adapted

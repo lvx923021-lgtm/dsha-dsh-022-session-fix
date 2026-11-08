@@ -10,12 +10,12 @@ the DeepSeek Harness project.
 
 - Upstream: https://github.com/DSH-APP/DSHA
 - Copyright (c) 2026 qiannianhuanxiang
-- ix_dsh_022_session.py embeds, nearly verbatim, the dsha-runtime-fs
-  module from pp/src/main/assets/runtime-fs/index.js so that DSH
+- `fix_dsh_022_session.py` embeds, nearly verbatim, the `dsha-runtime-fs`
+  module from `app/src/main/assets/runtime-fs/index.js` so that DSH
   0.2.2-rc.1 can perform DSHA's atomic session publishing on Android.
 - The session-persistence patch anchors and replacements in
-  ix_dsh_022_session.py are adapted from DSHA's
-  	ools/build-dsh-runtime.py.
+  `fix_dsh_022_session.py` are adapted from DSHA's
+  `tools/build-dsh-runtime.py`.
 
 MIT License
 
@@ -42,7 +42,7 @@ SOFTWARE.
 - Upstream: https://github.com/deepseek-ai/deepseek-harness
 - Copyright (c) 2026 DeepSeek
 - The script applies small text replacements to a locally installed copy of
-  @deepseek-ai/dsh-session-persistence-jsonl. No upstream package files are
+  `@deepseek-ai/dsh-session-persistence-jsonl`. No upstream package files are
   redistributed in this repository.
 
 MIT License

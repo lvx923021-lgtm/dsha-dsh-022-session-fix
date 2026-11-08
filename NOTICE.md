@@ -44,6 +44,9 @@ SOFTWARE.
 - The script applies small text replacements to a locally installed copy of
   `@deepseek-ai/dsh-session-persistence-jsonl`. No upstream package files are
   redistributed in this repository.
+- `scripts/check-plugin-compat.mjs` mirrors the plugin compatibility rule
+  implemented in `@deepseek-ai/dsh-app-boot` (MIT). It is an independent
+  read-only reimplementation for diagnostic purposes.
 
 MIT License
 
